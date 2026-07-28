@@ -6,6 +6,9 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Collections.Generic;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -42,6 +45,21 @@ public partial class MainViewModel : ViewModelBase
     private int _currentStreak = 0;
 
     [ObservableProperty]
+    private string _sessionGoal = "";
+
+    [ObservableProperty]
+    private bool _isMiniMode = false;
+
+    [ObservableProperty]
+    private double _windowWidth = 350;
+
+    [ObservableProperty]
+    private double _windowHeight = 500;
+
+    [ObservableProperty]
+    private IBrush _themeGradientBrush = new SolidColorBrush(Colors.Cyan);
+
+    [ObservableProperty]
     private bool _isAlwaysOnTop = false;
 
     [ObservableProperty]
@@ -61,6 +79,9 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _showControls = true;
+
+    public bool ShowMainMode => !IsMiniMode;
+    public bool IsIntentLocked => IsRunning;
 
     [ObservableProperty]
     private double _backgroundOpacity = 0.88;
@@ -157,6 +178,7 @@ public partial class MainViewModel : ViewModelBase
         public bool IsAlwaysOnTop { get; set; } = false;
         public double BackgroundOpacity { get; set; } = 0.88;
         public double GhostOpacity { get; set; } = 1.0;
+        public string SelectedTheme { get; set; } = "Cyber";
     }
 
     public class HistoryRecord
@@ -171,6 +193,7 @@ public partial class MainViewModel : ViewModelBase
         public List<HistoryRecord> Records { get; set; } = new List<HistoryRecord>();
         public int CurrentStreak { get; set; } = 0;
         public string LastFocusedDate { get; set; } = "";
+        public List<string> UnlockedThemes { get; set; } = new List<string> { "Cyber" };
     }
 
     private HistoryData _history = new HistoryData();
@@ -193,10 +216,30 @@ public partial class MainViewModel : ViewModelBase
                     IsAlwaysOnTop = s.IsAlwaysOnTop;
                     BackgroundOpacity = s.BackgroundOpacity;
                     GhostOpacity = s.GhostOpacity;
+                    _selectedThemeStr = s.SelectedTheme; // private field for current theme
                 }
             }
         }
         catch { }
+    }
+
+    private string _selectedThemeStr = "Cyber";
+
+    public List<string> AvailableThemes => _history.UnlockedThemes;
+
+    public string SelectedThemeOption
+    {
+        get => _selectedThemeStr;
+        set
+        {
+            if (_history.UnlockedThemes.Contains(value))
+            {
+                _selectedThemeStr = value;
+                OnPropertyChanged(nameof(SelectedThemeOption));
+                UpdateThemeBrush();
+                SaveSettings();
+            }
+        }
     }
 
     private void SaveSettings()
@@ -212,7 +255,8 @@ public partial class MainViewModel : ViewModelBase
                 IsGhostMode = this.IsGhostModeEnabled,
                 IsAlwaysOnTop = this.IsAlwaysOnTop,
                 BackgroundOpacity = this.BackgroundOpacity,
-                GhostOpacity = this.GhostOpacity
+                GhostOpacity = this.GhostOpacity,
+                SelectedTheme = this._selectedThemeStr
             };
             File.WriteAllText("settings.json", JsonSerializer.Serialize(s));
         }
@@ -258,6 +302,53 @@ public partial class MainViewModel : ViewModelBase
             _history.CurrentStreak = 0;
         }
         CurrentStreak = _history.CurrentStreak;
+        CheckThemeUnlocks();
+    }
+
+    private void CheckThemeUnlocks()
+    {
+        bool changed = false;
+        if (!_history.UnlockedThemes.Contains("Cyber")) { _history.UnlockedThemes.Add("Cyber"); changed = true; }
+        if (CurrentStreak >= 3 && !_history.UnlockedThemes.Contains("Lava"))
+        {
+            _history.UnlockedThemes.Add("Lava");
+            changed = true;
+        }
+        if (CurrentStreak >= 7 && !_history.UnlockedThemes.Contains("Matrix"))
+        {
+            _history.UnlockedThemes.Add("Matrix");
+            changed = true;
+        }
+        if (changed)
+        {
+            OnPropertyChanged(nameof(AvailableThemes));
+            SaveHistory();
+        }
+        UpdateThemeBrush();
+    }
+
+    private void UpdateThemeBrush()
+    {
+        Color start = Color.Parse("#00E5FF");
+        Color end = Color.Parse("#9D00FF");
+
+        if (_selectedThemeStr == "Lava")
+        {
+            start = Color.Parse("#FF3300");
+            end = Color.Parse("#FF8800");
+        }
+        else if (_selectedThemeStr == "Matrix")
+        {
+            start = Color.Parse("#00FF00");
+            end = Color.Parse("#003300");
+        }
+
+        var stops = new GradientStops
+        {
+            new GradientStop(start, 0),
+            new GradientStop(end, 1)
+        };
+        ThemeGradientBrush = new LinearGradientBrush { StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative), GradientStops = stops };
     }
 
     private void UpdateStatsDisplay()
@@ -424,6 +515,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowPauseButton));
         OnPropertyChanged(nameof(ShowSettingsButton));
         OnPropertyChanged(nameof(ShowStatsButton));
+        OnPropertyChanged(nameof(IsIntentLocked));
     }
 
     [RelayCommand]
@@ -489,5 +581,22 @@ public partial class MainViewModel : ViewModelBase
     private void DecrementMinutes()
     {
         if (CustomMinutes > 1) CustomMinutes--;
+    }
+
+    [RelayCommand]
+    private void ToggleMiniMode()
+    {
+        IsMiniMode = !IsMiniMode;
+        if (IsMiniMode)
+        {
+            WindowWidth = 180;
+            WindowHeight = 80;
+        }
+        else
+        {
+            WindowWidth = 350;
+            WindowHeight = 500;
+        }
+        OnPropertyChanged(nameof(ShowMainMode));
     }
 }

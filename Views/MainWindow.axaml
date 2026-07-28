@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="500"
-        Width="350" Height="500"
+        Width="{Binding WindowWidth}" Height="{Binding WindowHeight}"
         x:Class="FocusTimer.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
@@ -12,7 +12,7 @@
         Topmost="{Binding IsAlwaysOnTop}"
         WindowStartupLocation="CenterScreen"
         WindowDecorations="None"
-        MinWidth="250" MinHeight="350"
+        MinWidth="180" MinHeight="80"
         Background="Transparent"
         TransparencyLevelHint="Transparent"
         Classes.Ghost="{Binding IsGhostModeEnabled}"
@@ -21,13 +21,6 @@
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>
-
-    <Window.Resources>
-        <LinearGradientBrush x:Key="BrandGradient" StartPoint="0%,0%" EndPoint="100%,100%">
-            <GradientStop Color="#00E5FF" Offset="0"/>
-            <GradientStop Color="#9D00FF" Offset="1"/>
-        </LinearGradientBrush>
-    </Window.Resources>
 
     <Grid Classes.Ghost="{Binding IsGhostModeEnabled}">
         <Grid.Styles>
@@ -78,14 +71,27 @@
         <!-- Main Dark Background -->
         <Border Classes="AnimFade" Background="#121212" Opacity="{Binding CurrentBackgroundOpacity}" IsHitTestVisible="{Binding IsNotGhostMode}"/>
 
-        <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Main UI -->
+        <Grid RowDefinitions="Auto,*,Auto" IsVisible="{Binding ShowMainMode}">
             <!-- Custom Title Bar -->
             <Grid Grid.Row="0" Height="40" Background="Transparent" Margin="10,0" IsVisible="{Binding IsNotGhostMode}">
+                <Button HorizontalAlignment="Left" 
+                        VerticalAlignment="Center" 
+                        Content="↙" 
+                        Command="{Binding ToggleMiniModeCommand}"
+                        Background="Transparent"
+                        Foreground="#888888"
+                        BorderThickness="0"
+                        FontSize="16"
+                        IsEnabled="{Binding ShowControls}"/>
+
                 <TextBlock Text="FOCUS TIMER" 
-                           VerticalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center" 
                            Foreground="#888888" 
                            FontWeight="Bold" 
                            LetterSpacing="2"/>
+
                 <Button HorizontalAlignment="Right" 
                         VerticalAlignment="Center" 
                         Content="✕" 
@@ -99,17 +105,34 @@
             <!-- Main Content Scaled -->
             <Viewbox Grid.Row="1" Stretch="Uniform" Margin="20" Classes="AnimFade" Opacity="{Binding CurrentTimerOpacity}" IsHitTestVisible="{Binding !IsSettingsVisible}">
                 <StackPanel VerticalAlignment="Center" Spacing="25">
+                    
+                    <!-- Intent Setter -->
+                    <TextBox Text="{Binding SessionGoal}" 
+                             Watermark="What is your goal?"
+                             IsVisible="{Binding !IsIntentLocked}"
+                             HorizontalAlignment="Center"
+                             TextAlignment="Center"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="White"
+                             FontSize="14"
+                             Width="240"/>
+                             
+                    <TextBlock Text="{Binding SessionGoal}"
+                               IsVisible="{Binding IsIntentLocked}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Foreground="{Binding ThemeGradientBrush}"
+                               FontWeight="Bold"
+                               FontSize="16"
+                               TextWrapping="Wrap"
+                               MaxWidth="240"/>
+
                     <!-- Timer Panel -->
                     <Button Background="Transparent" BorderThickness="0" Command="{Binding ToggleGhostModeCommand}" ToolTip.Tip="Click to toggle Ghost Mode" CornerRadius="150">
                         <Border Classes="TimerRing" CornerRadius="150" Width="240" Height="240" 
                                 HorizontalAlignment="Center"
-                                BoxShadow="0 0 40 0 #669D00FF">
-                            <Border.BorderBrush>
-                                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                                    <GradientStop Color="#00E5FF" Offset="0"/>
-                                    <GradientStop Color="#9D00FF" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.BorderBrush>
+                                BorderBrush="{Binding ThemeGradientBrush}">
                             <TextBlock Text="{Binding TimeDisplay}"
                                        FontSize="65"
                                        FontWeight="Thin"
@@ -159,9 +182,19 @@
                     <!-- Content -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden">
                         <StackPanel Spacing="25" Margin="20,10,20,80">
+                            <!-- Theme Section -->
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Theme" Foreground="{Binding ThemeGradientBrush}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
+                                <Border Background="#141414" CornerRadius="12" Padding="15">
+                                    <ComboBox ItemsSource="{Binding AvailableThemes}" 
+                                              SelectedItem="{Binding SelectedThemeOption}" 
+                                              HorizontalAlignment="Stretch"/>
+                                </Border>
+                            </StackPanel>
+
                             <!-- Timer Section -->
                             <StackPanel Spacing="10">
-                                <TextBlock Text="Timer Configuration" Foreground="{StaticResource BrandGradient}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
+                                <TextBlock Text="Timer Configuration" Foreground="{Binding ThemeGradientBrush}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
                                 
                                 <Border Background="#141414" CornerRadius="12" Padding="15">
                                     <Grid ColumnDefinitions="*,Auto">
@@ -178,7 +211,7 @@
 
                             <!-- Blockers Section -->
                             <StackPanel Spacing="10">
-                                <TextBlock Text="Distraction Blockers" Foreground="{StaticResource BrandGradient}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
+                                <TextBlock Text="Distraction Blockers" Foreground="{Binding ThemeGradientBrush}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
                                 
                                 <Border Background="#141414" CornerRadius="12" Padding="15">
                                     <StackPanel Spacing="12">
@@ -203,7 +236,7 @@
 
                             <!-- Features Section -->
                             <StackPanel Spacing="10">
-                                <TextBlock Text="Advanced Features" Foreground="{StaticResource BrandGradient}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
+                                <TextBlock Text="Advanced Features" Foreground="{Binding ThemeGradientBrush}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
                                 
                                 <Border Background="#141414" CornerRadius="12" Padding="15">
                                     <StackPanel Spacing="15">
@@ -265,7 +298,7 @@
                         <Border Background="#141414" CornerRadius="15" Padding="20">
                             <StackPanel Spacing="5" HorizontalAlignment="Center">
                                 <TextBlock Text="TODAY'S FOCUS" Foreground="#888888" FontSize="12" FontWeight="Bold" LetterSpacing="2" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TodayFocusDisplay}" Foreground="{StaticResource BrandGradient}" FontSize="36" FontWeight="Black" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TodayFocusDisplay}" Foreground="{Binding ThemeGradientBrush}" FontSize="36" FontWeight="Black" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </Border>
 
@@ -292,7 +325,9 @@
                         </Border>
                     </Border>
                 </Grid>
-            </Border>            <!-- Footer Buttons -->
+            </Border>            
+
+            <!-- Footer Buttons -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20" Margin="0,0,0,20">
                 <Button Content="📊 Stats" 
                         Command="{Binding ToggleStatsCommand}"
@@ -306,6 +341,20 @@
                         Foreground="#888888"/>
             </StackPanel>
         </Grid>
+        
+        <!-- Mini Mode UI -->
+        <Grid IsVisible="{Binding IsMiniMode}" Background="#1E1E1E" ColumnDefinitions="Auto,*,Auto,Auto">
+            <Button Grid.Column="0" Content="↗" Command="{Binding ToggleMiniModeCommand}" Background="Transparent" Foreground="#888888" BorderThickness="0" Padding="10"/>
+            
+            <TextBlock Grid.Column="1" Text="{Binding SessionGoal}" Foreground="{Binding ThemeGradientBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="11" FontWeight="Bold" MaxWidth="60" TextWrapping="Wrap"/>
+            
+            <TextBlock Grid.Column="2" Text="{Binding TimeDisplay}" Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0"/>
+            
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="5" Margin="0,0,10,0">
+                <Button Content="▶" Command="{Binding StartTimerCommand}" IsVisible="{Binding !IsRunning}" Background="Transparent" Foreground="#00E5FF" BorderThickness="0" Padding="5"/>
+                <Button Content="⏸" Command="{Binding StopTimerCommand}" IsVisible="{Binding IsRunning}" Background="Transparent" Foreground="#FF3366" BorderThickness="0" Padding="5"/>
+            </StackPanel>
+        </Grid>
 
         <!-- Resize Grip -->
         <Path Data="M 10,0 L 10,10 L 0,10 Z" 
@@ -316,6 +365,6 @@
               Margin="5"
               Cursor="BottomRightCorner"
               PointerPressed="ResizeGrip_PointerPressed"
-              IsVisible="{Binding IsNotGhostMode}" />
+              IsVisible="{Binding ShowMainMode}" />
     </Grid>
 </Window>
