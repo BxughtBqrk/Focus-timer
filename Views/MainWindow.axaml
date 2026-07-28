@@ -133,13 +133,15 @@
                         <Border Classes="TimerRing" CornerRadius="150" Width="240" Height="240" 
                                 HorizontalAlignment="Center"
                                 BorderBrush="{Binding ThemeGradientBrush}">
-                            <TextBlock Text="{Binding TimeDisplay}"
-                                       FontSize="65"
-                                       FontWeight="Thin"
-                                       LetterSpacing="2"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="White"/>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="0">
+                                <TextBlock Text="{Binding CurrentModeDisplay}" Foreground="{Binding ThemeGradientBrush}" FontWeight="Black" FontSize="14" LetterSpacing="4" HorizontalAlignment="Center" Margin="0,0,0,-5"/>
+                                <TextBlock Text="{Binding TimeDisplay}"
+                                           FontSize="65"
+                                           FontWeight="Thin"
+                                           LetterSpacing="2"
+                                           HorizontalAlignment="Center"
+                                           Foreground="White"/>
+                            </StackPanel>
                         </Border>
                     </Button>
 
@@ -187,15 +189,26 @@
                                 <TextBlock Text="Timer Configuration" Foreground="{Binding ThemeGradientBrush}" FontWeight="Bold" FontSize="12" LetterSpacing="1"/>
                                 
                                 <Border Background="#141414" CornerRadius="12" Padding="15">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <TextBlock Grid.Column="0" Text="Duration (Min)" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
-                                        
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                            <Button Content="-" Command="{Binding DecrementMinutesCommand}" Width="28" Height="28" CornerRadius="14" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
-                                            <TextBox Text="{Binding CustomMinutesString}" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Width="45" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4" MinHeight="28"/>
-                                            <Button Content="+" Command="{Binding IncrementMinutesCommand}" Width="28" Height="28" CornerRadius="14" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
-                                        </StackPanel>
-                                    </Grid>
+                                    <StackPanel Spacing="15">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Focus Duration (Min)" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
+                                            
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                                <Button Content="-" Command="{Binding DecrementMinutesCommand}" Width="28" Height="28" CornerRadius="14" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
+                                                <TextBox Text="{Binding CustomMinutesString}" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Width="45" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4" MinHeight="28"/>
+                                                <Button Content="+" Command="{Binding IncrementMinutesCommand}" Width="28" Height="28" CornerRadius="14" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Break Duration (Min)" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
+                                            
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                                <Button Content="-" Command="{Binding DecrementBreakMinutesCommand}" Width="28" Height="28" CornerRadius="14" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
+                                                <TextBlock Text="{Binding BreakMinutes}" Foreground="White" FontSize="15" FontWeight="Bold" VerticalAlignment="Center" Width="45" TextAlignment="Center" Background="#1E1E1E" Padding="0,4" MinHeight="28"/>
+                                                <Button Content="+" Command="{Binding IncrementBreakMinutesCommand}" Width="28" Height="28" CornerRadius="14" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
                                 </Border>
                             </StackPanel>
 

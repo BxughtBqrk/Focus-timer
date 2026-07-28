@@ -27,6 +27,14 @@ public partial class MainViewModel : ViewModelBase
     private int _customMinutes = 25;
 
     [ObservableProperty]
+    private int _breakMinutes = 5;
+
+    [ObservableProperty]
+    private bool _isBreakMode = false;
+
+    public string CurrentModeDisplay => IsBreakMode ? "BREAK" : "FOCUS";
+
+    [ObservableProperty]
     private string _customMinutesString = "25";
 
     [ObservableProperty]
@@ -136,10 +144,13 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnCustomMinutesChanged(int value)
     {
-        if (CustomMinutesString != value.ToString())
-        {
-            CustomMinutesString = value.ToString();
-        }
+        if (!IsBreakMode) ResetTimer();
+        SaveSettings();
+    }
+
+    partial void OnBreakMinutesChanged(int value)
+    {
+        if (IsBreakMode) ResetTimer();
         SaveSettings();
     }
 
@@ -171,6 +182,7 @@ public partial class MainViewModel : ViewModelBase
     public class AppSettings
     {
         public int CustomMinutes { get; set; } = 25;
+        public int BreakMinutes { get; set; } = 5;
         public string BlockedApps { get; set; } = "";
         public string AllowedTab { get; set; } = "";
         public bool IsIronWill { get; set; } = false;
@@ -207,6 +219,7 @@ public partial class MainViewModel : ViewModelBase
                 if (s != null)
                 {
                     CustomMinutes = s.CustomMinutes;
+                    if (s.BreakMinutes > 0) BreakMinutes = s.BreakMinutes;
                     BlockedAppsString = s.BlockedApps;
                     AllowedTabString = s.AllowedTab;
                     IsIronWillEnabled = s.IsIronWill;
@@ -227,6 +240,7 @@ public partial class MainViewModel : ViewModelBase
             var s = new AppSettings
             {
                 CustomMinutes = this.CustomMinutes,
+                BreakMinutes = this.BreakMinutes,
                 BlockedApps = this.BlockedAppsString,
                 AllowedTab = this.AllowedTabString,
                 IsIronWill = this.IsIronWillEnabled,
@@ -275,7 +289,6 @@ public partial class MainViewModel : ViewModelBase
         
         if (_history.LastFocusedDate != today && _history.LastFocusedDate != yesterday && !string.IsNullOrEmpty(_history.LastFocusedDate))
         {
-            // Streak broken
             _history.CurrentStreak = 0;
         }
         CurrentStreak = _history.CurrentStreak;
@@ -309,7 +322,6 @@ public partial class MainViewModel : ViewModelBase
             record = new HistoryRecord { DateString = today };
             _history.Records.Add(record);
             
-            // Increment streak if last focused date was yesterday, or if it's the very first time
             if (_history.LastFocusedDate == yesterday || string.IsNullOrEmpty(_history.LastFocusedDate))
             {
                 _history.CurrentStreak++;
@@ -341,12 +353,7 @@ public partial class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
-        var stops = new GradientStops
-        {
-            new GradientStop(Color.Parse("#00E5FF"), 0),
-            new GradientStop(Color.Parse("#9D00FF"), 1)
-        };
-        ThemeGradientBrush = new LinearGradientBrush { StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative), GradientStops = stops };
+        UpdateThemeBrush();
 
         LoadSettings();
         LoadHistory();
@@ -357,6 +364,18 @@ public partial class MainViewModel : ViewModelBase
         };
         _timer.Tick += Timer_Tick;
         ResetTimer();
+    }
+
+    private void UpdateThemeBrush()
+    {
+        var colorStart = IsBreakMode ? "#00FF7F" : "#00E5FF";
+        var colorEnd = IsBreakMode ? "#008080" : "#9D00FF";
+        var stops = new GradientStops
+        {
+            new GradientStop(Color.Parse(colorStart), 0),
+            new GradientStop(Color.Parse(colorEnd), 1)
+        };
+        ThemeGradientBrush = new LinearGradientBrush { StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative), GradientStops = stops };
     }
 
     private void Timer_Tick(object? sender, EventArgs e)
@@ -370,8 +389,7 @@ public partial class MainViewModel : ViewModelBase
         }
         else
         {
-            StopTimer();
-            RecordCompletedSession(CustomMinutes);
+            StartTimer();
         }
     }
 
@@ -400,7 +418,6 @@ public partial class MainViewModel : ViewModelBase
             }
             catch
             {
-                // Ignore exceptions (e.g., Access Denied for system processes)
             }
         }
     }
@@ -425,15 +442,12 @@ public partial class MainViewModel : ViewModelBase
         {
             string title = sb.ToString().ToLower();
 
-            // Check if active window is Google Chrome
             if (title.Contains("google chrome"))
             {
-                // Check if any allowed keyword is present or if it's a new tab
                 bool isAllowed = allowedKeywords.Any(k => title.Contains(k)) || title.Contains("new tab");
                 
                 if (!isAllowed)
                 {
-                    // Minimize Chrome!
                     ShowWindow(handle, SW_MINIMIZE);
                 }
             }
@@ -461,27 +475,52 @@ public partial class MainViewModel : ViewModelBase
     {
         if (_remainingSeconds <= 0)
         {
-            ResetTimer();
+            _timer.Stop();
+            IsRunning = false;
+            
+            if (!IsBreakMode)
+            {
+                CurrentStreak++;
+                TodayFocusMinutes += CustomMinutes;
+                
+                IsBreakMode = true;
+                _remainingSeconds = BreakMinutes * 60;
+            }
+            else
+            {
+                IsBreakMode = false;
+                _remainingSeconds = CustomMinutes * 60;
+            }
+            
+            UpdateTimeDisplay();
+            UpdateThemeBrush();
+            OnPropertyChanged(nameof(CurrentModeDisplay));
+            UpdateControlVisibility();
         }
-        IsRunning = true;
-        UpdateControlVisibility();
-        _timer.Start();
+        else if (!_timer.IsEnabled)
+        {
+            IsRunning = true;
+            UpdateControlVisibility();
+            _timer.Start();
+        }
     }
 
     [RelayCommand]
     private void StopTimer()
     {
+        _timer.Stop();
         IsRunning = false;
         UpdateControlVisibility();
-        _timer.Stop();
     }
 
     [RelayCommand]
     private void ResetTimer()
     {
-        StopTimer();
-        _remainingSeconds = CustomMinutes * 60;
+        _timer.Stop();
+        IsRunning = false;
+        _remainingSeconds = (IsBreakMode ? BreakMinutes : CustomMinutes) * 60;
         UpdateTimeDisplay();
+        UpdateControlVisibility();
     }
 
     [RelayCommand]
@@ -519,6 +558,18 @@ public partial class MainViewModel : ViewModelBase
     private void DecrementMinutes()
     {
         if (CustomMinutes > 1) CustomMinutes--;
+    }
+
+    [RelayCommand]
+    private void IncrementBreakMinutes()
+    {
+        if (BreakMinutes < 60) BreakMinutes++;
+    }
+
+    [RelayCommand]
+    private void DecrementBreakMinutes()
+    {
+        if (BreakMinutes > 1) BreakMinutes--;
     }
 
     [RelayCommand]
