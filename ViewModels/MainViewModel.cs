@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Linq;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -239,6 +240,14 @@ public partial class MainViewModel : ViewModelBase
         public string LastFocusedDate { get; set; } = "";
     }
 
+    [JsonSerializable(typeof(AppSettings))]
+    [JsonSerializable(typeof(HistoryData))]
+    [JsonSerializable(typeof(HistoryRecord))]
+    [JsonSerializable(typeof(List<HistoryRecord>))]
+    internal partial class AppJsonContext : JsonSerializerContext
+    {
+    }
+
     private HistoryData _history = new HistoryData();
 
     private string GetConfigFilePath(string filename)
@@ -257,7 +266,7 @@ public partial class MainViewModel : ViewModelBase
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
-                var s = JsonSerializer.Deserialize<AppSettings>(json);
+                var s = JsonSerializer.Deserialize(json, AppJsonContext.Default.AppSettings);
                 if (s != null)
                 {
                     CustomMinutes = s.CustomMinutes;
@@ -296,7 +305,7 @@ public partial class MainViewModel : ViewModelBase
                 GhostOpacity = this.GhostOpacity
             };
             var path = GetConfigFilePath("settings.json");
-            File.WriteAllText(path, JsonSerializer.Serialize(s));
+            File.WriteAllText(path, JsonSerializer.Serialize(s, AppJsonContext.Default.AppSettings));
         }
         catch { }
     }
@@ -309,7 +318,7 @@ public partial class MainViewModel : ViewModelBase
             if (File.Exists(path))
             {
                 var json = File.ReadAllText(path);
-                var h = JsonSerializer.Deserialize<HistoryData>(json);
+                var h = JsonSerializer.Deserialize(json, AppJsonContext.Default.HistoryData);
                 if (h != null)
                 {
                     _history = h;
@@ -326,7 +335,7 @@ public partial class MainViewModel : ViewModelBase
         try
         {
             var path = GetConfigFilePath("history.json");
-            File.WriteAllText(path, JsonSerializer.Serialize(_history));
+            File.WriteAllText(path, JsonSerializer.Serialize(_history, AppJsonContext.Default.HistoryData));
         }
         catch { }
     }
