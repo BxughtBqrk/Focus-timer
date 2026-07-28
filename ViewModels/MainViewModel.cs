@@ -38,6 +38,9 @@ public partial class MainViewModel : ViewModelBase
     private string _customMinutesString = "25";
 
     [ObservableProperty]
+    private string _breakMinutesString = "5";
+
+    [ObservableProperty]
     private bool _isRunning;
 
     [ObservableProperty]
@@ -150,6 +153,10 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnBreakMinutesChanged(int value)
     {
+        if (BreakMinutesString != value.ToString())
+        {
+            BreakMinutesString = value.ToString();
+        }
         if (IsBreakMode) ResetTimer();
         SaveSettings();
     }
@@ -161,6 +168,17 @@ public partial class MainViewModel : ViewModelBase
             if (result >= 1 && result <= 1440)
             {
                 CustomMinutes = result;
+            }
+        }
+    }
+
+    partial void OnBreakMinutesStringChanged(string value)
+    {
+        if (int.TryParse(value, out int result))
+        {
+            if (result >= 1 && result <= 1440)
+            {
+                BreakMinutes = result;
             }
         }
     }
