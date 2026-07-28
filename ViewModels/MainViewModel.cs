@@ -367,6 +367,9 @@ public partial class MainViewModel : ViewModelBase
     [DllImport("user32.dll")]
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
+    [DllImport("user32.dll")]
+    private static extern bool MessageBeep(uint uType);
+
     private const int SW_MINIMIZE = 6;
 
     public MainViewModel()
@@ -502,11 +505,13 @@ public partial class MainViewModel : ViewModelBase
                 
                 IsBreakMode = true;
                 _remainingSeconds = BreakMinutes * 60;
+                MessageBeep(0x00); // Standard ding
             }
             else
             {
                 IsBreakMode = false;
                 _remainingSeconds = CustomMinutes * 60;
+                MessageBeep(0x00); // Standard ding
             }
             
             UpdateTimeDisplay();
