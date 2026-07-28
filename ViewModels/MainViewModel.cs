@@ -480,8 +480,7 @@ public partial class MainViewModel : ViewModelBase
             
             if (!IsBreakMode)
             {
-                CurrentStreak++;
-                TodayFocusMinutes += CustomMinutes;
+                RecordCompletedSession(CustomMinutes);
                 
                 IsBreakMode = true;
                 _remainingSeconds = BreakMinutes * 60;
