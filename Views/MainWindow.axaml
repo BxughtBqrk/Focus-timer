@@ -328,7 +328,7 @@
             </Border>            
 
             <!-- Footer Buttons -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20" Margin="0,0,0,20">
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20" Margin="0,0,0,20" IsVisible="{Binding IsNotGhostMode}">
                 <Button Content="📊 Stats" 
                         Command="{Binding ToggleStatsCommand}"
                         IsVisible="{Binding ShowStatsButton}"
