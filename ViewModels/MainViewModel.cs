@@ -156,6 +156,10 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnCustomMinutesChanged(int value)
     {
+        if (CustomMinutesString != value.ToString())
+        {
+            CustomMinutesString = value.ToString();
+        }
         if (!IsBreakMode) ResetTimer();
         SaveSettings();
     }
@@ -237,13 +241,22 @@ public partial class MainViewModel : ViewModelBase
 
     private HistoryData _history = new HistoryData();
 
+    private string GetConfigFilePath(string filename)
+    {
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var folder = Path.Combine(appData, "FocusTimer");
+        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+        return Path.Combine(folder, filename);
+    }
+
     private void LoadSettings()
     {
         try
         {
-            if (File.Exists("settings.json"))
+            var path = GetConfigFilePath("settings.json");
+            if (File.Exists(path))
             {
-                var json = File.ReadAllText("settings.json");
+                var json = File.ReadAllText(path);
                 var s = JsonSerializer.Deserialize<AppSettings>(json);
                 if (s != null)
                 {
@@ -282,7 +295,8 @@ public partial class MainViewModel : ViewModelBase
                 BackgroundOpacity = this.BackgroundOpacity,
                 GhostOpacity = this.GhostOpacity
             };
-            File.WriteAllText("settings.json", JsonSerializer.Serialize(s));
+            var path = GetConfigFilePath("settings.json");
+            File.WriteAllText(path, JsonSerializer.Serialize(s));
         }
         catch { }
     }
@@ -291,9 +305,10 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            if (File.Exists("history.json"))
+            var path = GetConfigFilePath("history.json");
+            if (File.Exists(path))
             {
-                var json = File.ReadAllText("history.json");
+                var json = File.ReadAllText(path);
                 var h = JsonSerializer.Deserialize<HistoryData>(json);
                 if (h != null)
                 {
@@ -310,7 +325,8 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            File.WriteAllText("history.json", JsonSerializer.Serialize(_history));
+            var path = GetConfigFilePath("history.json");
+            File.WriteAllText(path, JsonSerializer.Serialize(_history));
         }
         catch { }
     }
