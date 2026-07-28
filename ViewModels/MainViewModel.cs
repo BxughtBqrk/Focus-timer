@@ -5,6 +5,7 @@ using System.Linq;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Collections.Generic;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -30,6 +31,15 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool _isSettingsVisible = false;
+
+    [ObservableProperty]
+    private bool _isStatsVisible = false;
+
+    [ObservableProperty]
+    private string _todayFocusDisplay = "0h 0m";
+
+    [ObservableProperty]
+    private int _currentStreak = 0;
 
     [ObservableProperty]
     private bool _isAlwaysOnTop = false;
@@ -71,11 +81,21 @@ public partial class MainViewModel : ViewModelBase
 
     public double CurrentBackgroundOpacity => IsGhostModeEnabled ? 0.0 : BackgroundOpacity;
 
-    public bool ShowSettingsButton => ShowControls && !IsSettingsVisible;
+    public bool ShowSettingsButton => ShowControls && !IsSettingsVisible && !IsStatsVisible;
+    
+    public bool ShowStatsButton => ShowControls && !IsSettingsVisible && !IsStatsVisible;
 
     partial void OnIsSettingsVisibleChanged(bool value)
     {
         OnPropertyChanged(nameof(ShowSettingsButton));
+        OnPropertyChanged(nameof(ShowStatsButton));
+        OnPropertyChanged(nameof(CurrentTimerOpacity));
+    }
+
+    partial void OnIsStatsVisibleChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowSettingsButton));
+        OnPropertyChanged(nameof(ShowStatsButton));
         OnPropertyChanged(nameof(CurrentTimerOpacity));
     }
 
@@ -139,6 +159,22 @@ public partial class MainViewModel : ViewModelBase
         public double GhostOpacity { get; set; } = 1.0;
     }
 
+    public class HistoryRecord
+    {
+        public string DateString { get; set; } = "";
+        public int TotalMinutes { get; set; } = 0;
+        public int SessionCount { get; set; } = 0;
+    }
+
+    public class HistoryData
+    {
+        public List<HistoryRecord> Records { get; set; } = new List<HistoryRecord>();
+        public int CurrentStreak { get; set; } = 0;
+        public string LastFocusedDate { get; set; } = "";
+    }
+
+    private HistoryData _history = new HistoryData();
+
     private void LoadSettings()
     {
         try
@@ -183,6 +219,94 @@ public partial class MainViewModel : ViewModelBase
         catch { }
     }
 
+    private void LoadHistory()
+    {
+        try
+        {
+            if (File.Exists("history.json"))
+            {
+                var json = File.ReadAllText("history.json");
+                var h = JsonSerializer.Deserialize<HistoryData>(json);
+                if (h != null)
+                {
+                    _history = h;
+                }
+            }
+        }
+        catch { }
+        UpdateStreakLogic();
+        UpdateStatsDisplay();
+    }
+
+    private void SaveHistory()
+    {
+        try
+        {
+            File.WriteAllText("history.json", JsonSerializer.Serialize(_history));
+        }
+        catch { }
+    }
+
+    private void UpdateStreakLogic()
+    {
+        var today = DateTime.Now.ToString("yyyy-MM-dd");
+        var yesterday = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+        
+        if (_history.LastFocusedDate != today && _history.LastFocusedDate != yesterday && !string.IsNullOrEmpty(_history.LastFocusedDate))
+        {
+            // Streak broken
+            _history.CurrentStreak = 0;
+        }
+        CurrentStreak = _history.CurrentStreak;
+    }
+
+    private void UpdateStatsDisplay()
+    {
+        var today = DateTime.Now.ToString("yyyy-MM-dd");
+        var todayRecord = _history.Records.FirstOrDefault(r => r.DateString == today);
+        int totalMinutes = todayRecord != null ? todayRecord.TotalMinutes : 0;
+        
+        int hours = totalMinutes / 60;
+        int mins = totalMinutes % 60;
+        
+        if (hours > 0)
+            TodayFocusDisplay = $"{hours}h {mins}m";
+        else
+            TodayFocusDisplay = $"{mins}m";
+            
+        CurrentStreak = _history.CurrentStreak;
+    }
+
+    private void RecordCompletedSession(int minutes)
+    {
+        var today = DateTime.Now.ToString("yyyy-MM-dd");
+        var yesterday = DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd");
+
+        var record = _history.Records.FirstOrDefault(r => r.DateString == today);
+        if (record == null)
+        {
+            record = new HistoryRecord { DateString = today };
+            _history.Records.Add(record);
+            
+            // Increment streak if last focused date was yesterday, or if it's the very first time
+            if (_history.LastFocusedDate == yesterday || string.IsNullOrEmpty(_history.LastFocusedDate))
+            {
+                _history.CurrentStreak++;
+            }
+            else if (_history.LastFocusedDate != today)
+            {
+                _history.CurrentStreak = 1;
+            }
+        }
+        
+        record.TotalMinutes += minutes;
+        record.SessionCount++;
+        _history.LastFocusedDate = today;
+        
+        SaveHistory();
+        UpdateStatsDisplay();
+    }
+
     [DllImport("user32.dll")]
     private static extern IntPtr GetForegroundWindow();
 
@@ -197,6 +321,7 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel()
     {
         LoadSettings();
+        LoadHistory();
         _timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(1)
@@ -217,6 +342,7 @@ public partial class MainViewModel : ViewModelBase
         else
         {
             StopTimer();
+            RecordCompletedSession(CustomMinutes);
         }
     }
 
@@ -297,6 +423,7 @@ public partial class MainViewModel : ViewModelBase
         ShowControls = !(IsRunning && IsIronWillEnabled);
         OnPropertyChanged(nameof(ShowPauseButton));
         OnPropertyChanged(nameof(ShowSettingsButton));
+        OnPropertyChanged(nameof(ShowStatsButton));
     }
 
     [RelayCommand]
@@ -331,10 +458,19 @@ public partial class MainViewModel : ViewModelBase
     private void ToggleSettings()
     {
         IsSettingsVisible = !IsSettingsVisible;
+        if (IsSettingsVisible) IsStatsVisible = false;
+        
         if (!IsSettingsVisible)
         {
             ResetTimer();
         }
+    }
+
+    [RelayCommand]
+    private void ToggleStats()
+    {
+        IsStatsVisible = !IsStatsVisible;
+        if (IsStatsVisible) IsSettingsVisible = false;
     }
 
     [RelayCommand]

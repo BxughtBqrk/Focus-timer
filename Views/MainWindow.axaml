@@ -245,18 +245,66 @@
                 </Grid>
             </Border>
 
-                    <!-- Timer Panel -->
+            <!-- Stats Panel -->
+            <Border Grid.Row="1" Grid.RowSpan="2" 
+                    Classes="SettingsPanel" Classes.visible="{Binding IsStatsVisible}"
+                    Background="#E80A0A0A" 
+                    CornerRadius="20"
+                    Margin="10,0,10,10"
+                    BorderBrush="#222222" BorderThickness="1">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <!-- Header -->
+                    <Border Grid.Row="0" Padding="0,20,0,10">
+                        <TextBlock Text="STATISTICS" Foreground="White" FontWeight="Bold" FontSize="18" LetterSpacing="4" HorizontalAlignment="Center"/>
+                    </Border>
+                    
+                    <!-- Content -->
+                    <StackPanel Grid.Row="1" Spacing="20" Margin="20,20,20,80" VerticalAlignment="Center">
+                        
+                        <!-- Today Focus -->
+                        <Border Background="#141414" CornerRadius="15" Padding="20">
+                            <StackPanel Spacing="5" HorizontalAlignment="Center">
+                                <TextBlock Text="TODAY'S FOCUS" Foreground="#888888" FontSize="12" FontWeight="Bold" LetterSpacing="2" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding TodayFocusDisplay}" Foreground="{StaticResource BrandGradient}" FontSize="36" FontWeight="Black" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
 
+                        <!-- Current Streak -->
+                        <Border Background="#141414" CornerRadius="15" Padding="20">
+                            <StackPanel Spacing="5" HorizontalAlignment="Center">
+                                <TextBlock Text="CURRENT STREAK" Foreground="#888888" FontSize="12" FontWeight="Bold" LetterSpacing="2" HorizontalAlignment="Center"/>
+                                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding CurrentStreak}" Foreground="White" FontSize="36" FontWeight="Black" VerticalAlignment="Center"/>
+                                    <TextBlock Text="DAYS 🔥" Foreground="#FF5500" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                    </StackPanel>
 
-            <!-- Footer Settings Button -->
-            <Button Grid.Row="2" 
-                    Content="⚙ Settings" 
-                    Command="{Binding ToggleSettingsCommand}"
-                    IsVisible="{Binding ShowSettingsButton}"
-                    HorizontalAlignment="Center" 
-                    Margin="0,0,0,20"
-                    Background="Transparent"
-                    Foreground="#888888"/>
+                    <!-- Footer / Floating Button -->
+                    <Border Grid.Row="2" Padding="0,0,0,25">
+                        <Border CornerRadius="20" BoxShadow="0 10 20 0 #40000000" HorizontalAlignment="Center">
+                            <Button Content="✓ Done" 
+                                    Command="{Binding ToggleStatsCommand}"
+                                    Background="#333333" Foreground="White" FontWeight="Bold" FontSize="14" LetterSpacing="1"
+                                    CornerRadius="20" Padding="25,10"/>
+                        </Border>
+                    </Border>
+                </Grid>
+            </Border>            <!-- Footer Buttons -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20" Margin="0,0,0,20">
+                <Button Content="📊 Stats" 
+                        Command="{Binding ToggleStatsCommand}"
+                        IsVisible="{Binding ShowStatsButton}"
+                        Background="Transparent"
+                        Foreground="#888888"/>
+                <Button Content="⚙ Settings" 
+                        Command="{Binding ToggleSettingsCommand}"
+                        IsVisible="{Binding ShowSettingsButton}"
+                        Background="Transparent"
+                        Foreground="#888888"/>
+            </StackPanel>
         </Grid>
 
         <!-- Resize Grip -->
