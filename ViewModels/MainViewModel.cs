@@ -91,6 +91,12 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _showControls = true;
 
+    [ObservableProperty]
+    private bool _isAutoStartEnabled = false;
+
+    [ObservableProperty]
+    private bool _isSoundEnabled = true;
+
     public bool ShowMainMode => !IsMiniMode;
     public bool IsIntentLocked => IsRunning;
 
@@ -144,6 +150,9 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(CurrentBackgroundOpacity));
         SaveSettings();
     }
+
+    partial void OnIsAutoStartEnabledChanged(bool value) => SaveSettings();
+    partial void OnIsSoundEnabledChanged(bool value) => SaveSettings();
 
     partial void OnCustomMinutesChanged(int value)
     {
@@ -206,6 +215,8 @@ public partial class MainViewModel : ViewModelBase
         public bool IsIronWill { get; set; } = false;
         public bool IsGhostMode { get; set; } = false;
         public bool IsAlwaysOnTop { get; set; } = false;
+        public bool IsAutoStart { get; set; } = false;
+        public bool IsSoundEnabled { get; set; } = true;
         public double BackgroundOpacity { get; set; } = 0.88;
         public double GhostOpacity { get; set; } = 1.0;
     }
@@ -243,6 +254,8 @@ public partial class MainViewModel : ViewModelBase
                     IsIronWillEnabled = s.IsIronWill;
                     IsGhostModeEnabled = s.IsGhostMode;
                     IsAlwaysOnTop = s.IsAlwaysOnTop;
+                    IsAutoStartEnabled = s.IsAutoStart;
+                    IsSoundEnabled = s.IsSoundEnabled;
                     BackgroundOpacity = s.BackgroundOpacity;
                     GhostOpacity = s.GhostOpacity;
                 }
@@ -264,6 +277,8 @@ public partial class MainViewModel : ViewModelBase
                 IsIronWill = this.IsIronWillEnabled,
                 IsGhostMode = this.IsGhostModeEnabled,
                 IsAlwaysOnTop = this.IsAlwaysOnTop,
+                IsAutoStart = this.IsAutoStartEnabled,
+                IsSoundEnabled = this.IsSoundEnabled,
                 BackgroundOpacity = this.BackgroundOpacity,
                 GhostOpacity = this.GhostOpacity
             };
@@ -505,18 +520,25 @@ public partial class MainViewModel : ViewModelBase
                 
                 IsBreakMode = true;
                 _remainingSeconds = BreakMinutes * 60;
-                MessageBeep(0x00); // Standard ding
+                if (IsSoundEnabled) MessageBeep(0x00); // Standard ding
             }
             else
             {
                 IsBreakMode = false;
                 _remainingSeconds = CustomMinutes * 60;
-                MessageBeep(0x00); // Standard ding
+                if (IsSoundEnabled) MessageBeep(0x00); // Standard ding
             }
             
             UpdateTimeDisplay();
             UpdateThemeBrush();
             OnPropertyChanged(nameof(CurrentModeDisplay));
+            
+            if (IsAutoStartEnabled)
+            {
+                IsRunning = true;
+                _timer.Start();
+            }
+            
             UpdateControlVisibility();
         }
         else if (!_timer.IsEnabled)

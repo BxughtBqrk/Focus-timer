@@ -244,6 +244,14 @@
                                 <Border Background="#141414" CornerRadius="12" Padding="15">
                                     <StackPanel Spacing="15">
                                         <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Auto-Start Cycles" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
+                                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAutoStartEnabled}" OnContent="" OffContent="" Margin="0"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Mode Switch Sound" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
+                                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsSoundEnabled}" OnContent="" OffContent="" Margin="0"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*,Auto">
                                             <TextBlock Grid.Column="0" Text="Ghost Mode" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
                                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsGhostModeEnabled}" OnContent="" OffContent="" Margin="0"/>
                                         </Grid>
