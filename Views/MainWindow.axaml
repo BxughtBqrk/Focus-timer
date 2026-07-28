@@ -227,7 +227,7 @@
                                         </StackPanel>
                                         
                                         <StackPanel Spacing="6">
-                                            <TextBlock Text="Allowed Tab (e.g. Figma)" Foreground="#888888" FontSize="11" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Allowed Tab in Chrome (e.g. Figma)" Foreground="#888888" FontSize="11" FontWeight="SemiBold"/>
                                             <TextBox Text="{Binding AllowedTabString}" 
                                                      HorizontalAlignment="Stretch" Foreground="White"
                                                      CornerRadius="8" BorderThickness="0" Background="#1E1E1E"
