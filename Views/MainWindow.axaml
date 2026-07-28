@@ -231,6 +231,14 @@
                                 <Border Background="#141414" CornerRadius="12" Padding="15">
                                     <StackPanel Spacing="15">
                                         <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock Grid.Column="0" Text="Ambient Brown Noise" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
+                                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsAmbientAudioEnabled}" OnContent="" OffContent="" Margin="0"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsAmbientAudioEnabled}">
+                                            <TextBlock Grid.Column="0" Text="Ambient Volume" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
+                                            <Slider Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding AmbientVolume}" Width="80" Margin="0" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <Grid ColumnDefinitions="*,Auto">
                                             <TextBlock Grid.Column="0" Text="Ghost Mode" Foreground="White" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13"/>
                                             <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsGhostModeEnabled}" OnContent="" OffContent="" Margin="0"/>
                                         </Grid>
