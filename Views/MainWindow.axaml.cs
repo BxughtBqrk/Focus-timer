@@ -35,6 +35,21 @@ public partial class MainWindow : Window
         this.Close();
     }
 
+    private void TextBox_TextChanged(object? sender, Avalonia.Controls.TextChangedEventArgs e)
+    {
+        if (DataContext is ViewModels.MainViewModel vm && sender is Avalonia.Controls.TextBox tb)
+        {
+            if (tb.Name == "BlockedAppsTextBox")
+                vm.BlockedAppsString = tb.Text ?? "";
+            else if (tb.Name == "AllowedTabTextBox")
+                vm.AllowedTabString = tb.Text ?? "";
+            else if (tb.Name == "CustomMinsTextBox")
+                vm.CustomMinutesString = tb.Text ?? "";
+            else if (tb.Name == "BreakMinsTextBox")
+                vm.BreakMinutesString = tb.Text ?? "";
+        }
+    }
+
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
