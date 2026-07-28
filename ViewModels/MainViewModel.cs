@@ -12,7 +12,6 @@ using Avalonia.Media.Immutable;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FocusTimer.Services;
 
 namespace FocusTimer.ViewModels;
 
@@ -89,12 +88,6 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private double _ghostOpacity = 1.0;
-
-    [ObservableProperty]
-    private bool _isAmbientAudioEnabled = false;
-
-    [ObservableProperty]
-    private double _ambientVolume = 0.5;
 
     public bool ShowPauseButton => IsRunning && !IsIronWillEnabled;
     
@@ -175,19 +168,6 @@ public partial class MainViewModel : ViewModelBase
         SaveSettings();
     }
 
-    partial void OnIsAmbientAudioEnabledChanged(bool value)
-    {
-        if (value && IsRunning) AudioEngine.Play();
-        else AudioEngine.Pause();
-        SaveSettings();
-    }
-
-    partial void OnAmbientVolumeChanged(double value)
-    {
-        AudioEngine.SetVolume((float)value);
-        SaveSettings();
-    }
-
     public class AppSettings
     {
         public int CustomMinutes { get; set; } = 25;
@@ -198,8 +178,6 @@ public partial class MainViewModel : ViewModelBase
         public bool IsAlwaysOnTop { get; set; } = false;
         public double BackgroundOpacity { get; set; } = 0.88;
         public double GhostOpacity { get; set; } = 1.0;
-        public bool IsAmbientAudioEnabled { get; set; } = false;
-        public double AmbientVolume { get; set; } = 0.5;
     }
 
     public class HistoryRecord
@@ -236,8 +214,6 @@ public partial class MainViewModel : ViewModelBase
                     IsAlwaysOnTop = s.IsAlwaysOnTop;
                     BackgroundOpacity = s.BackgroundOpacity;
                     GhostOpacity = s.GhostOpacity;
-                    IsAmbientAudioEnabled = s.IsAmbientAudioEnabled;
-                    AmbientVolume = s.AmbientVolume;
                 }
             }
         }
@@ -257,9 +233,7 @@ public partial class MainViewModel : ViewModelBase
                 IsGhostMode = this.IsGhostModeEnabled,
                 IsAlwaysOnTop = this.IsAlwaysOnTop,
                 BackgroundOpacity = this.BackgroundOpacity,
-                GhostOpacity = this.GhostOpacity,
-                IsAmbientAudioEnabled = this.IsAmbientAudioEnabled,
-                AmbientVolume = this.AmbientVolume
+                GhostOpacity = this.GhostOpacity
             };
             File.WriteAllText("settings.json", JsonSerializer.Serialize(s));
         }
@@ -377,9 +351,6 @@ public partial class MainViewModel : ViewModelBase
         LoadSettings();
         LoadHistory();
         
-        AudioEngine.Initialize();
-        AudioEngine.SetVolume((float)AmbientVolume);
-        
         _timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(1)
@@ -495,7 +466,6 @@ public partial class MainViewModel : ViewModelBase
         IsRunning = true;
         UpdateControlVisibility();
         _timer.Start();
-        if (IsAmbientAudioEnabled) AudioEngine.Play();
     }
 
     [RelayCommand]
@@ -504,7 +474,6 @@ public partial class MainViewModel : ViewModelBase
         IsRunning = false;
         UpdateControlVisibility();
         _timer.Stop();
-        AudioEngine.Pause();
     }
 
     [RelayCommand]
