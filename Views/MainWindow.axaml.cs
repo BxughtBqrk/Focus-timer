@@ -39,6 +39,8 @@ public partial class MainWindow : Window
     {
         if (DataContext is ViewModels.MainViewModel vm && sender is Avalonia.Controls.TextBox tb)
         {
+            try { System.IO.File.AppendAllText(System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "FocusTimer", "debug.log"), $"{System.DateTime.Now:HH:mm:ss.fff}: TextChanged fired for '{tb.Name}' with text '{tb.Text}'. ViewModel currently has: '{vm.BlockedAppsString}'\n"); } catch {}
+
             if (tb.Name == "BlockedAppsTextBox")
                 vm.BlockedAppsString = tb.Text ?? "";
             else if (tb.Name == "AllowedTabTextBox")
