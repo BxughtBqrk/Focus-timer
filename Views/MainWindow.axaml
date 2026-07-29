@@ -316,28 +316,60 @@
                     </Border>
                     
                     <!-- Content -->
-                    <StackPanel Grid.Row="1" Spacing="20" Margin="20,20,20,80" VerticalAlignment="Center">
-                        
-                        <!-- Today Focus -->
-                        <Border Background="#141414" CornerRadius="15" Padding="20">
-                            <StackPanel Spacing="5" HorizontalAlignment="Center">
-                                <TextBlock Text="TODAY'S FOCUS" Foreground="#888888" FontSize="12" FontWeight="Bold" LetterSpacing="2" HorizontalAlignment="Center"/>
-                                <TextBlock Text="{Binding TodayFocusDisplay}" Foreground="{Binding ThemeGradientBrush}" FontSize="36" FontWeight="Black" HorizontalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Current Streak -->
-                        <Border Background="#141414" CornerRadius="15" Padding="20">
-                            <StackPanel Spacing="5" HorizontalAlignment="Center">
-                                <TextBlock Text="CURRENT STREAK" Foreground="#888888" FontSize="12" FontWeight="Bold" LetterSpacing="2" HorizontalAlignment="Center"/>
-                                <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding CurrentStreak}" Foreground="White" FontSize="36" FontWeight="Black" VerticalAlignment="Center"/>
-                                    <TextBlock Text="DAYS 🔥" Foreground="#FF5500" FontSize="20" FontWeight="Bold" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                    <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="10">
+                            <!-- Focus Metric -->
+                            <Border Background="#111111" CornerRadius="10" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="TODAY'S FOCUS" Foreground="#888888" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" LetterSpacing="2"/>
+                                    <TextBlock Text="{Binding TodayFocusDisplay}" Foreground="White" FontSize="36" FontWeight="Bold" HorizontalAlignment="Center">
+                                        <TextBlock.Foreground>
+                                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                                <GradientStop Offset="0" Color="#00E5FF"/>
+                                                <GradientStop Offset="1" Color="#9D00FF"/>
+                                            </LinearGradientBrush>
+                                        </TextBlock.Foreground>
+                                    </TextBlock>
                                 </StackPanel>
-                            </StackPanel>
-                        </Border>
-                        
-                    </StackPanel>
+                            </Border>
+
+                            <!-- Mini Chart -->
+                            <Border Background="#111111" CornerRadius="10" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="ACTIVITY (7 DAYS)" Foreground="#888888" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" LetterSpacing="2" Margin="0,0,0,10"/>
+                                    
+                                    <Canvas Width="240" Height="80" HorizontalAlignment="Center">
+                                        <!-- Focus Line (Cyan) -->
+                                        <Polyline Points="{Binding FocusChartPointsString}" Stroke="#00E5FF" StrokeThickness="2" StrokeJoin="Round"/>
+                                        
+                                        <!-- Break Line (Purple) -->
+                                        <Polyline Points="{Binding BreakChartPointsString}" Stroke="#9D00FF" StrokeThickness="2" StrokeJoin="Round"/>
+                                    </Canvas>
+                                    
+                                    <!-- Legend -->
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="15" Margin="0,10,0,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <Ellipse Width="8" Height="8" Fill="#00E5FF"/>
+                                            <TextBlock Text="Focus" Foreground="#888888" FontSize="10" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="5">
+                                            <Ellipse Width="8" Height="8" Fill="#9D00FF"/>
+                                            <TextBlock Text="Break" Foreground="#888888" FontSize="10" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Streak Metric -->
+                            <Border Background="#111111" CornerRadius="10" Padding="15">
+                                <StackPanel>
+                                    <TextBlock Text="CURRENT STREAK" Foreground="#888888" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" LetterSpacing="2"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="5">
+                                        <TextBlock Text="{Binding CurrentStreak}" Foreground="White" FontSize="36" FontWeight="Bold"/>
+                                        <TextBlock Text="DAYS 🔥" Foreground="#FF4500" FontSize="16" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
 
                     <!-- Footer / Floating Button -->
                     <Border Grid.Row="2" Padding="0,0,0,25">

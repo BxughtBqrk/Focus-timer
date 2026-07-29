@@ -71,6 +71,12 @@ public partial class MainViewModel : ViewModelBase
     private int _currentStreak = 0;
 
     [ObservableProperty]
+    private string _focusChartPointsString = "0,80 240,80";
+
+    [ObservableProperty]
+    private string _breakChartPointsString = "0,80 240,80";
+
+    [ObservableProperty]
     private string _sessionGoal = "";
 
     [ObservableProperty]
@@ -266,6 +272,7 @@ public partial class MainViewModel : ViewModelBase
     {
         public string DateString { get; set; } = "";
         public int TotalMinutes { get; set; } = 0;
+        public int TotalBreakMinutes { get; set; } = 0;
         public int SessionCount { get; set; } = 0;
     }
 
@@ -412,6 +419,45 @@ public partial class MainViewModel : ViewModelBase
             TodayFocusDisplay = $"{mins}m";
             
         CurrentStreak = _history.CurrentStreak;
+        UpdateChartData();
+    }
+
+    private void UpdateChartData()
+    {
+        var last7Days = Enumerable.Range(0, 7)
+            .Select(i => DateTime.Now.AddDays(-6 + i).ToString("yyyy-MM-dd"))
+            .ToList();
+
+        var focusData = new List<int>();
+        var breakData = new List<int>();
+
+        foreach (var day in last7Days)
+        {
+            var record = _history.Records.FirstOrDefault(r => r.DateString == day);
+            focusData.Add(record?.TotalMinutes ?? 0);
+            breakData.Add(record?.TotalBreakMinutes ?? 0);
+        }
+
+        double width = 240;
+        double height = 80;
+
+        int maxVal = Math.Max(1, Math.Max(focusData.Max(), breakData.Max()));
+
+        var focusPoints = new List<string>();
+        var breakPoints = new List<string>();
+
+        for (int i = 0; i < 7; i++)
+        {
+            double x = i * (width / 6);
+            double focusY = height - ((double)focusData[i] / maxVal * height);
+            double breakY = height - ((double)breakData[i] / maxVal * height);
+
+            focusPoints.Add($"{x:0.1},{focusY:0.1}");
+            breakPoints.Add($"{x:0.1},{breakY:0.1}");
+        }
+
+        FocusChartPointsString = string.Join(" ", focusPoints);
+        BreakChartPointsString = string.Join(" ", breakPoints);
     }
 
     private void RecordCompletedSession(int minutes)
@@ -446,6 +492,21 @@ public partial class MainViewModel : ViewModelBase
             if (IsSoundEnabled) MessageBeep(0x00);
         }
         
+        SaveHistory();
+        UpdateStatsDisplay();
+    }
+
+    private void RecordCompletedBreak(int minutes)
+    {
+        if (minutes <= 0) return;
+        var today = DateTime.Now.ToString("yyyy-MM-dd");
+        var record = _history.Records.FirstOrDefault(r => r.DateString == today);
+        if (record == null)
+        {
+            record = new HistoryRecord { DateString = today };
+            _history.Records.Add(record);
+        }
+        record.TotalBreakMinutes += minutes;
         SaveHistory();
         UpdateStatsDisplay();
     }
@@ -553,6 +614,8 @@ public partial class MainViewModel : ViewModelBase
             }
             else
             {
+                RecordCompletedBreak(BreakMinutes);
+                
                 IsBreakMode = false;
                 _timeUntilBreakSeconds = CustomMinutes * 60;
                 if (IsSoundEnabled) MessageBeep(0x00);

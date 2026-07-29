@@ -6,6 +6,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PublishTrimmed>true</PublishTrimmed>
     <ApplicationIcon>Assets\focus-logo.ico</ApplicationIcon>
+    <AssemblyName>FocusTimerApp</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
