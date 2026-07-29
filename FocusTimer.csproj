@@ -8,6 +8,7 @@
     <ApplicationIcon>Assets\focus-logo.ico</ApplicationIcon>
     <AssemblyName>FocusTimerApp</AssemblyName>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
