@@ -7,6 +7,7 @@
     <PublishTrimmed>true</PublishTrimmed>
     <ApplicationIcon>Assets\focus-logo.ico</ApplicationIcon>
     <AssemblyName>FocusTimerApp</AssemblyName>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <ItemGroup>
