@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PublishTrimmed>true</PublishTrimmed>
-    <ApplicationIcon>Assets\avalonia-logo.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\focus-logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

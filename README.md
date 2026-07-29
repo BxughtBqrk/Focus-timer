@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="Assets/avalonia-logo.ico" alt="Logo" width="100"/>
+  <img src="Assets/focus-logo.ico" alt="Logo" width="100"/>
   <h1>FocusTimer</h1>
   <p><i>A sleek, hardcore productivity timer built with Avalonia UI.</i></p>
 </div>

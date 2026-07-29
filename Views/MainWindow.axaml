@@ -7,7 +7,7 @@
         Width="{Binding WindowWidth}" Height="{Binding WindowHeight}"
         x:Class="FocusTimer.Views.MainWindow"
         x:DataType="vm:MainViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/focus-logo.ico"
         Title="FocusTimer"
         Topmost="{Binding IsAlwaysOnTop}"
         WindowStartupLocation="CenterScreen"
