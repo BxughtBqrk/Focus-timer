@@ -249,6 +249,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     private HistoryData _history = new HistoryData();
+    private bool _isLoadingSettings = false;
 
     private string GetConfigFilePath(string filename)
     {
@@ -260,6 +261,7 @@ public partial class MainViewModel : ViewModelBase
 
     private void LoadSettings()
     {
+        _isLoadingSettings = true;
         try
         {
             var path = GetConfigFilePath("settings.json");
@@ -284,10 +286,12 @@ public partial class MainViewModel : ViewModelBase
             }
         }
         catch { }
+        finally { _isLoadingSettings = false; }
     }
 
     private void SaveSettings()
     {
+        if (_isLoadingSettings) return;
         try
         {
             var s = new AppSettings
