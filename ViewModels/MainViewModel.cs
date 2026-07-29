@@ -250,11 +250,6 @@ public partial class MainViewModel : ViewModelBase
 
     private HistoryData _history = new HistoryData();
     private bool _isLoadingSettings = false;
-    
-    private void LogDebug(string msg)
-    {
-        try { File.AppendAllText(GetConfigFilePath("debug.log"), $"{DateTime.Now:HH:mm:ss.fff}: {msg}\n"); } catch {}
-    }
 
     private string GetConfigFilePath(string filename)
     {
@@ -276,12 +271,10 @@ public partial class MainViewModel : ViewModelBase
                 var s = JsonSerializer.Deserialize(json, AppJsonContext.Default.AppSettings);
                 if (s != null)
                 {
-                    LogDebug($"LoadSettings JSON BlockedApps: '{s.BlockedApps}', AllowedTab: '{s.AllowedTab}'");
                     CustomMinutes = s.CustomMinutes;
                     if (s.BreakMinutes > 0) BreakMinutes = s.BreakMinutes;
                     BlockedAppsString = s.BlockedApps ?? "";
                     AllowedTabString = s.AllowedTab ?? "";
-                    LogDebug($"LoadSettings ViewModel BlockedAppsString is now: '{BlockedAppsString}', AllowedTabString is now: '{AllowedTabString}'");
                     IsIronWillEnabled = s.IsIronWill;
                     IsGhostModeEnabled = s.IsGhostMode;
                     IsAlwaysOnTop = s.IsAlwaysOnTop;
@@ -318,11 +311,9 @@ public partial class MainViewModel : ViewModelBase
             var path = GetConfigFilePath("settings.json");
             var json = JsonSerializer.Serialize(s, AppJsonContext.Default.AppSettings);
             File.WriteAllText(path, json);
-            LogDebug($"SaveSettings wrote to file. BlockedApps: '{s.BlockedApps}', json: {json}");
         }
-        catch (Exception ex)
+        catch (Exception)
         { 
-            LogDebug($"SaveSettings ERROR: {ex.Message}");
         }
     }
 
@@ -432,14 +423,15 @@ public partial class MainViewModel : ViewModelBase
     {
         UpdateThemeBrush();
 
-        LoadSettings();
-        LoadHistory();
-        
         _timer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(1)
         };
         _timer.Tick += Timer_Tick;
+
+        LoadSettings();
+        LoadHistory();
+        
         ResetTimer();
     }
 
