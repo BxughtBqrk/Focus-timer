@@ -68,6 +68,12 @@ public partial class MainViewModel : ViewModelBase
     private string _todayFocusDisplay = "0h 0m";
 
     [ObservableProperty]
+    private string _todayBreakDisplay = "0h 0m";
+
+    [ObservableProperty]
+    private string _breakRatioDisplay = "0%";
+
+    [ObservableProperty]
     private int _currentStreak = 0;
 
     [ObservableProperty]
@@ -75,6 +81,15 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private List<Point> _breakChartPoints = new List<Point> { new Point(0, 80), new Point(240, 80) };
+
+    [ObservableProperty]
+    private string _chartMaxLabel = "60m";
+
+    [ObservableProperty]
+    private string _chartMidLabel = "30m";
+
+    [ObservableProperty]
+    private List<string> _dayLabels = new List<string> { "", "", "", "", "", "", "" };
 
     [ObservableProperty]
     private string _sessionGoal = "";
@@ -408,15 +423,26 @@ public partial class MainViewModel : ViewModelBase
     {
         var today = DateTime.Now.ToString("yyyy-MM-dd");
         var todayRecord = _history.Records.FirstOrDefault(r => r.DateString == today);
-        int totalMinutes = todayRecord != null ? todayRecord.TotalMinutes : 0;
+        int totalFocus = todayRecord != null ? todayRecord.TotalMinutes : 0;
+        int totalBreak = todayRecord != null ? todayRecord.TotalBreakMinutes : 0;
         
-        int hours = totalMinutes / 60;
-        int mins = totalMinutes % 60;
-        
-        if (hours > 0)
-            TodayFocusDisplay = $"{hours}h {mins}m";
+        int fHours = totalFocus / 60;
+        int fMins = totalFocus % 60;
+        TodayFocusDisplay = fHours > 0 ? $"{fHours}h {fMins}m" : $"{fMins}m";
+
+        int bHours = totalBreak / 60;
+        int bMins = totalBreak % 60;
+        TodayBreakDisplay = bHours > 0 ? $"{bHours}h {bMins}m" : $"{bMins}m";
+
+        if (totalFocus + totalBreak > 0)
+        {
+            double ratio = (double)totalBreak / (totalFocus + totalBreak) * 100.0;
+            BreakRatioDisplay = $"{Math.Round(ratio)}%";
+        }
         else
-            TodayFocusDisplay = $"{mins}m";
+        {
+            BreakRatioDisplay = "0%";
+        }
             
         CurrentStreak = _history.CurrentStreak;
         UpdateChartData();
@@ -425,23 +451,33 @@ public partial class MainViewModel : ViewModelBase
     private void UpdateChartData()
     {
         var last7Days = Enumerable.Range(0, 7)
-            .Select(i => DateTime.Now.AddDays(-6 + i).ToString("yyyy-MM-dd"))
+            .Select(i => DateTime.Now.AddDays(-6 + i))
             .ToList();
 
         var focusData = new List<int>();
         var breakData = new List<int>();
+        var newLabels = new List<string>();
 
         foreach (var day in last7Days)
         {
-            var record = _history.Records.FirstOrDefault(r => r.DateString == day);
+            var dayStr = day.ToString("yyyy-MM-dd");
+            var record = _history.Records.FirstOrDefault(r => r.DateString == dayStr);
             focusData.Add(record?.TotalMinutes ?? 0);
             breakData.Add(record?.TotalBreakMinutes ?? 0);
+            newLabels.Add(day.ToString("ddd")); // Mon, Tue, etc.
         }
+
+        DayLabels = newLabels;
 
         double width = 240;
         double height = 80;
 
         int maxVal = Math.Max(1, Math.Max(focusData.Max(), breakData.Max()));
+        maxVal = (int)Math.Ceiling(maxVal / 10.0) * 10; // Round up to nearest 10
+        if (maxVal == 0) maxVal = 60;
+
+        ChartMaxLabel = $"{maxVal}m";
+        ChartMidLabel = $"{maxVal / 2}m";
 
         var focusPointsList = new List<Point>();
         var breakPointsList = new List<Point>();
