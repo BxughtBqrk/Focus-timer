@@ -47,6 +47,8 @@ public partial class MainWindow : Window
                 vm.CustomMinutesString = tb.Text ?? "";
             else if (tb.Name == "BreakMinsTextBox")
                 vm.BreakMinutesString = tb.Text ?? "";
+            else if (tb.Name == "GoalHoursTextBox")
+                vm.GoalHoursString = tb.Text ?? "";
         }
     }
 

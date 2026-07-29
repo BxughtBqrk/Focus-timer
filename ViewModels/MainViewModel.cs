@@ -31,6 +31,9 @@ public partial class MainViewModel : ViewModelBase
     private int _breakMinutes = 5;
 
     [ObservableProperty]
+    private int _goalHours = 5;
+
+    [ObservableProperty]
     private bool _isBreakMode = false;
 
     public string CurrentModeDisplay => IsBreakMode ? "BREAK" : "FOCUS";
@@ -40,6 +43,15 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _breakMinutesString = "5";
+
+    [ObservableProperty]
+    private string _goalHoursString = "5";
+
+    [ObservableProperty]
+    private bool _isGoalNotificationVisible = false;
+
+    [ObservableProperty]
+    private bool _goalReachedThisSession = false;
 
     [ObservableProperty]
     private bool _isRunning;
@@ -175,6 +187,16 @@ public partial class MainViewModel : ViewModelBase
         SaveSettings();
     }
 
+    partial void OnGoalHoursChanged(int value)
+    {
+        if (GoalHoursString != value.ToString())
+        {
+            GoalHoursString = value.ToString();
+        }
+        GoalReachedThisSession = false;
+        SaveSettings();
+    }
+
     partial void OnCustomMinutesStringChanged(string value)
     {
         if (int.TryParse(value, out int result))
@@ -193,6 +215,17 @@ public partial class MainViewModel : ViewModelBase
             if (result >= 1 && result <= 1440)
             {
                 BreakMinutes = result;
+            }
+        }
+    }
+
+    partial void OnGoalHoursStringChanged(string value)
+    {
+        if (int.TryParse(value, out int result))
+        {
+            if (result >= 1 && result <= 24)
+            {
+                GoalHours = result;
             }
         }
     }
@@ -215,6 +248,7 @@ public partial class MainViewModel : ViewModelBase
     {
         public int CustomMinutes { get; set; } = 25;
         public int BreakMinutes { get; set; } = 5;
+        public int GoalHours { get; set; } = 5;
         public string BlockedApps { get; set; } = "";
         public string AllowedTab { get; set; } = "";
         public bool IsIronWill { get; set; } = false;
@@ -273,6 +307,7 @@ public partial class MainViewModel : ViewModelBase
                 {
                     CustomMinutes = s.CustomMinutes;
                     if (s.BreakMinutes > 0) BreakMinutes = s.BreakMinutes;
+                    if (s.GoalHours > 0) GoalHours = s.GoalHours;
                     BlockedAppsString = s.BlockedApps ?? "";
                     AllowedTabString = s.AllowedTab ?? "";
                     IsIronWillEnabled = s.IsIronWill;
@@ -298,6 +333,7 @@ public partial class MainViewModel : ViewModelBase
             {
                 CustomMinutes = this.CustomMinutes,
                 BreakMinutes = this.BreakMinutes,
+                GoalHours = this.GoalHours,
                 BlockedApps = this.BlockedAppsString,
                 AllowedTab = this.AllowedTabString,
                 IsIronWill = this.IsIronWillEnabled,
@@ -400,6 +436,13 @@ public partial class MainViewModel : ViewModelBase
         record.TotalMinutes += minutes;
         record.SessionCount++;
         _history.LastFocusedDate = today;
+        
+        if (record.TotalMinutes >= GoalHours * 60 && !GoalReachedThisSession)
+        {
+            GoalReachedThisSession = true;
+            IsGoalNotificationVisible = true;
+            if (IsSoundEnabled) MessageBeep(0x00);
+        }
         
         SaveHistory();
         UpdateStatsDisplay();
@@ -647,6 +690,24 @@ public partial class MainViewModel : ViewModelBase
     private void DecrementBreakMinutes()
     {
         if (BreakMinutes > 1) BreakMinutes--;
+    }
+
+    [RelayCommand]
+    private void IncrementGoalHours()
+    {
+        if (GoalHours < 24) GoalHours++;
+    }
+
+    [RelayCommand]
+    private void DecrementGoalHours()
+    {
+        if (GoalHours > 1) GoalHours--;
+    }
+
+    [RelayCommand]
+    private void DismissGoalNotification()
+    {
+        IsGoalNotificationVisible = false;
     }
 
     [RelayCommand]
