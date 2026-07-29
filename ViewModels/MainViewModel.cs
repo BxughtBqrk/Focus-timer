@@ -19,7 +19,9 @@ namespace FocusTimer.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     private DispatcherTimer _timer;
-    private int _remainingSeconds;
+    private int _sessionRemainingSeconds;
+    private int _timeUntilBreakSeconds;
+    private int _breakRemainingSeconds;
 
     [ObservableProperty]
     private string _timeDisplay = "25:00";
@@ -492,16 +494,79 @@ public partial class MainViewModel : ViewModelBase
 
     private void Timer_Tick(object? sender, EventArgs e)
     {
-        if (_remainingSeconds > 0)
+        if (!IsBreakMode)
         {
-            _remainingSeconds--;
-            UpdateTimeDisplay();
-            CheckAndKillBlockedApps();
-            EnforceTabWhitelist();
+            if (_sessionRemainingSeconds > 0)
+            {
+                _sessionRemainingSeconds--;
+                _timeUntilBreakSeconds--;
+                UpdateTimeDisplay();
+                CheckAndKillBlockedApps();
+                EnforceTabWhitelist();
+
+                if (_timeUntilBreakSeconds <= 0)
+                {
+                    RecordCompletedSession(CustomMinutes);
+
+                    if (_sessionRemainingSeconds > 0)
+                    {
+                        IsBreakMode = true;
+                        _breakRemainingSeconds = BreakMinutes * 60;
+                        if (IsSoundEnabled) MessageBeep(0x00);
+                        UpdateTimeDisplay();
+                        UpdateThemeBrush();
+                        OnPropertyChanged(nameof(CurrentModeDisplay));
+
+                        if (!IsAutoStartEnabled)
+                        {
+                            IsRunning = false;
+                            _timer.Stop();
+                            UpdateControlVisibility();
+                        }
+                    }
+                    else
+                    {
+                        _timer.Stop();
+                        IsRunning = false;
+                        UpdateTimeDisplay();
+                        UpdateControlVisibility();
+                    }
+                }
+                else if (_sessionRemainingSeconds <= 0)
+                {
+                    int partialMinutes = (CustomMinutes * 60 - _timeUntilBreakSeconds) / 60;
+                    if (partialMinutes > 0) RecordCompletedSession(partialMinutes);
+                    
+                    _timer.Stop();
+                    IsRunning = false;
+                    UpdateTimeDisplay();
+                    UpdateControlVisibility();
+                }
+            }
         }
         else
         {
-            StartTimer();
+            if (_breakRemainingSeconds > 0)
+            {
+                _breakRemainingSeconds--;
+                UpdateTimeDisplay();
+            }
+            else
+            {
+                IsBreakMode = false;
+                _timeUntilBreakSeconds = CustomMinutes * 60;
+                if (IsSoundEnabled) MessageBeep(0x00);
+                UpdateTimeDisplay();
+                UpdateThemeBrush();
+                OnPropertyChanged(nameof(CurrentModeDisplay));
+
+                if (!IsAutoStartEnabled)
+                {
+                    IsRunning = false;
+                    _timer.Stop();
+                    UpdateControlVisibility();
+                }
+            }
         }
     }
 
@@ -568,9 +633,15 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateTimeDisplay()
     {
-        int minutes = _remainingSeconds / 60;
-        int seconds = _remainingSeconds % 60;
-        TimeDisplay = $"{minutes:D2}:{seconds:D2}";
+        int displaySeconds = IsBreakMode ? _breakRemainingSeconds : _sessionRemainingSeconds;
+        int hours = displaySeconds / 3600;
+        int minutes = (displaySeconds % 3600) / 60;
+        int seconds = displaySeconds % 60;
+        
+        if (hours > 0)
+            TimeDisplay = $"{hours}:{minutes:D2}:{seconds:D2}";
+        else
+            TimeDisplay = $"{minutes:D2}:{seconds:D2}";
     }
 
     private void UpdateControlVisibility()
@@ -585,36 +656,11 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void StartTimer()
     {
-        if (_remainingSeconds <= 0)
+        if (_sessionRemainingSeconds <= 0)
         {
-            _timer.Stop();
-            IsRunning = false;
-            
-            if (!IsBreakMode)
-            {
-                RecordCompletedSession(CustomMinutes);
-                
-                IsBreakMode = true;
-                _remainingSeconds = BreakMinutes * 60;
-                if (IsSoundEnabled) MessageBeep(0x00); // Standard ding
-            }
-            else
-            {
-                IsBreakMode = false;
-                _remainingSeconds = CustomMinutes * 60;
-                if (IsSoundEnabled) MessageBeep(0x00); // Standard ding
-            }
-            
-            UpdateTimeDisplay();
-            UpdateThemeBrush();
-            OnPropertyChanged(nameof(CurrentModeDisplay));
-            
-            if (IsAutoStartEnabled)
-            {
-                IsRunning = true;
-                _timer.Start();
-            }
-            
+            ResetTimer();
+            IsRunning = true;
+            _timer.Start();
             UpdateControlVisibility();
         }
         else if (!_timer.IsEnabled)
@@ -638,8 +684,15 @@ public partial class MainViewModel : ViewModelBase
     {
         _timer.Stop();
         IsRunning = false;
-        _remainingSeconds = (IsBreakMode ? BreakMinutes : CustomMinutes) * 60;
+        IsBreakMode = false;
+        
+        _sessionRemainingSeconds = GoalHours * 3600;
+        _timeUntilBreakSeconds = CustomMinutes * 60;
+        _breakRemainingSeconds = BreakMinutes * 60;
+        
         UpdateTimeDisplay();
+        UpdateThemeBrush();
+        OnPropertyChanged(nameof(CurrentModeDisplay));
         UpdateControlVisibility();
     }
 
