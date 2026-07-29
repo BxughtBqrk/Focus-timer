@@ -339,10 +339,10 @@
                                     
                                     <Canvas Width="240" Height="80" HorizontalAlignment="Center">
                                         <!-- Focus Line (Cyan) -->
-                                        <Polyline Points="{Binding FocusChartPointsString}" Stroke="#00E5FF" StrokeThickness="2" StrokeJoin="Round"/>
+                                        <Polyline Points="{Binding FocusChartPoints}" Stroke="#00E5FF" StrokeThickness="2" StrokeJoin="Round"/>
                                         
                                         <!-- Break Line (Purple) -->
-                                        <Polyline Points="{Binding BreakChartPointsString}" Stroke="#9D00FF" StrokeThickness="2" StrokeJoin="Round"/>
+                                        <Polyline Points="{Binding BreakChartPoints}" Stroke="#9D00FF" StrokeThickness="2" StrokeJoin="Round"/>
                                     </Canvas>
                                     
                                     <!-- Legend -->

@@ -71,10 +71,10 @@ public partial class MainViewModel : ViewModelBase
     private int _currentStreak = 0;
 
     [ObservableProperty]
-    private string _focusChartPointsString = "0,80 240,80";
+    private List<Point> _focusChartPoints = new List<Point> { new Point(0, 80), new Point(240, 80) };
 
     [ObservableProperty]
-    private string _breakChartPointsString = "0,80 240,80";
+    private List<Point> _breakChartPoints = new List<Point> { new Point(0, 80), new Point(240, 80) };
 
     [ObservableProperty]
     private string _sessionGoal = "";
@@ -443,8 +443,8 @@ public partial class MainViewModel : ViewModelBase
 
         int maxVal = Math.Max(1, Math.Max(focusData.Max(), breakData.Max()));
 
-        var focusPoints = new List<string>();
-        var breakPoints = new List<string>();
+        var focusPointsList = new List<Point>();
+        var breakPointsList = new List<Point>();
 
         for (int i = 0; i < 7; i++)
         {
@@ -452,12 +452,12 @@ public partial class MainViewModel : ViewModelBase
             double focusY = height - ((double)focusData[i] / maxVal * height);
             double breakY = height - ((double)breakData[i] / maxVal * height);
 
-            focusPoints.Add($"{x:0.1},{focusY:0.1}");
-            breakPoints.Add($"{x:0.1},{breakY:0.1}");
+            focusPointsList.Add(new Point(x, focusY));
+            breakPointsList.Add(new Point(x, breakY));
         }
 
-        FocusChartPointsString = string.Join(" ", focusPoints);
-        BreakChartPointsString = string.Join(" ", breakPoints);
+        FocusChartPoints = focusPointsList;
+        BreakChartPoints = breakPointsList;
     }
 
     private void RecordCompletedSession(int minutes)
