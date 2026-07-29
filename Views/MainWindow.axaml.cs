@@ -39,13 +39,13 @@ public partial class MainWindow : Window
     {
         if (DataContext is ViewModels.MainViewModel vm && sender is Avalonia.Controls.TextBox tb)
         {
-            if (tb.Name == "BlockedAppsTextBox")
+            if (tb == BlockedAppsTextBox)
                 vm.BlockedAppsString = tb.Text ?? "";
-            else if (tb.Name == "AllowedTabTextBox")
+            else if (tb == AllowedTabTextBox)
                 vm.AllowedTabString = tb.Text ?? "";
-            else if (tb.Name == "CustomMinsTextBox")
+            else if (tb == CustomMinsTextBox)
                 vm.CustomMinutesString = tb.Text ?? "";
-            else if (tb.Name == "BreakMinsTextBox")
+            else if (tb == BreakMinsTextBox)
                 vm.BreakMinutesString = tb.Text ?? "";
         }
     }
