@@ -194,7 +194,11 @@
                                             
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                                 <Button Content="-" Command="{Binding DecrementGoalHoursCommand}" Width="26" Height="26" CornerRadius="13" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
-                                                <TextBox x:Name="GoalHoursTextBox" Name="GoalHoursTextBox" Text="{Binding GoalHoursString}" TextChanged="TextBox_TextChanged" Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Width="40" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4" MinHeight="26"/>
+                                                <TextBox x:Name="GoalHoursTextBox" Name="GoalHoursTextBox" Text="{Binding GoalHoursString}" TextChanged="TextBox_TextChanged" Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Width="65" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4,0,4" MinHeight="26">
+                                                    <TextBox.InnerRightContent>
+                                                        <TextBlock Text="hr" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" FontWeight="SemiBold"/>
+                                                    </TextBox.InnerRightContent>
+                                                </TextBox>
                                                 <Button Content="+" Command="{Binding IncrementGoalHoursCommand}" Width="26" Height="26" CornerRadius="13" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
                                             </StackPanel>
                                         </Grid>
@@ -203,7 +207,11 @@
                                             
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                                 <Button Content="-" Command="{Binding DecrementMinutesCommand}" Width="26" Height="26" CornerRadius="13" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
-                                                <TextBox x:Name="CustomMinsTextBox" Name="CustomMinsTextBox" Text="{Binding CustomMinutesString}" TextChanged="TextBox_TextChanged" Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Width="40" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4" MinHeight="26"/>
+                                                <TextBox x:Name="CustomMinsTextBox" Name="CustomMinsTextBox" Text="{Binding CustomMinutesString}" TextChanged="TextBox_TextChanged" Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Width="65" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4,0,4" MinHeight="26">
+                                                    <TextBox.InnerRightContent>
+                                                        <TextBlock Text="min" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12" FontWeight="SemiBold"/>
+                                                    </TextBox.InnerRightContent>
+                                                </TextBox>
                                                 <Button Content="+" Command="{Binding IncrementMinutesCommand}" Width="26" Height="26" CornerRadius="13" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
                                             </StackPanel>
                                         </Grid>
@@ -212,7 +220,11 @@
                                             
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
                                                 <Button Content="-" Command="{Binding DecrementBreakMinutesCommand}" Width="26" Height="26" CornerRadius="13" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
-                                                <TextBox x:Name="BreakMinsTextBox" Name="BreakMinsTextBox" Text="{Binding BreakMinutesString}" TextChanged="TextBox_TextChanged" Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Width="40" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4" MinHeight="26"/>
+                                                <TextBox x:Name="BreakMinsTextBox" Name="BreakMinsTextBox" Text="{Binding BreakMinutesString}" TextChanged="TextBox_TextChanged" Foreground="White" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" Width="65" TextAlignment="Center" Background="#1E1E1E" BorderThickness="0" CornerRadius="6" Padding="5,4,0,4" MinHeight="26">
+                                                    <TextBox.InnerRightContent>
+                                                        <TextBlock Text="min" Foreground="#888888" VerticalAlignment="Center" Margin="0,0,6,0" FontSize="12" FontWeight="SemiBold"/>
+                                                    </TextBox.InnerRightContent>
+                                                </TextBox>
                                                 <Button Content="+" Command="{Binding IncrementBreakMinutesCommand}" Width="26" Height="26" CornerRadius="13" Background="#252525" Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0"/>
                                             </StackPanel>
                                         </Grid>
