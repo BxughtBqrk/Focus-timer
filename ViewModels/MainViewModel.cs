@@ -27,13 +27,22 @@ public partial class MainViewModel : ViewModelBase
     private string _timeDisplay = "25:00";
 
     [ObservableProperty]
-    private int _customMinutes = 25;
+    private int _customMinutes = 45;
+
+    [ObservableProperty]
+    private int _focusHours = 0;
 
     [ObservableProperty]
     private int _breakMinutes = 5;
 
     [ObservableProperty]
-    private int _goalHours = 5;
+    private int _breakHours = 0;
+
+    [ObservableProperty]
+    private int _goalHours = 1;
+
+    [ObservableProperty]
+    private int _goalMinutes = 0;
 
     [ObservableProperty]
     private bool _isBreakMode = false;
@@ -41,13 +50,22 @@ public partial class MainViewModel : ViewModelBase
     public string CurrentModeDisplay => IsBreakMode ? "BREAK" : "FOCUS";
 
     [ObservableProperty]
-    private string _customMinutesString = "25";
+    private string _customMinutesString = "45";
+
+    [ObservableProperty]
+    private string _focusHoursString = "0";
 
     [ObservableProperty]
     private string _breakMinutesString = "5";
 
     [ObservableProperty]
-    private string _goalHoursString = "5";
+    private string _breakHoursString = "0";
+
+    [ObservableProperty]
+    private string _goalHoursString = "1";
+
+    [ObservableProperty]
+    private string _goalMinutesString = "0";
 
     [ObservableProperty]
     private bool _isGoalNotificationVisible = false;
@@ -192,65 +210,64 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnCustomMinutesChanged(int value)
     {
-        if (CustomMinutesString != value.ToString())
-        {
-            CustomMinutesString = value.ToString();
-        }
+        if (CustomMinutesString != value.ToString()) CustomMinutesString = value.ToString();
         if (!IsBreakMode) ResetTimer();
         SaveSettings();
     }
-
+    partial void OnFocusHoursChanged(int value)
+    {
+        if (FocusHoursString != value.ToString()) FocusHoursString = value.ToString();
+        if (!IsBreakMode) ResetTimer();
+        SaveSettings();
+    }
     partial void OnBreakMinutesChanged(int value)
     {
-        if (BreakMinutesString != value.ToString())
-        {
-            BreakMinutesString = value.ToString();
-        }
+        if (BreakMinutesString != value.ToString()) BreakMinutesString = value.ToString();
         if (IsBreakMode) ResetTimer();
         SaveSettings();
     }
-
+    partial void OnBreakHoursChanged(int value)
+    {
+        if (BreakHoursString != value.ToString()) BreakHoursString = value.ToString();
+        if (IsBreakMode) ResetTimer();
+        SaveSettings();
+    }
     partial void OnGoalHoursChanged(int value)
     {
-        if (GoalHoursString != value.ToString())
-        {
-            GoalHoursString = value.ToString();
-        }
+        if (GoalHoursString != value.ToString()) GoalHoursString = value.ToString();
+        GoalReachedThisSession = false;
+        SaveSettings();
+    }
+    partial void OnGoalMinutesChanged(int value)
+    {
+        if (GoalMinutesString != value.ToString()) GoalMinutesString = value.ToString();
         GoalReachedThisSession = false;
         SaveSettings();
     }
 
     partial void OnCustomMinutesStringChanged(string value)
     {
-        if (int.TryParse(value, out int result))
-        {
-            if (result >= 1 && result <= 1440)
-            {
-                CustomMinutes = result;
-            }
-        }
+        if (int.TryParse(value, out int result) && result >= 0 && result <= 59) CustomMinutes = result;
     }
-
+    partial void OnFocusHoursStringChanged(string value)
+    {
+        if (int.TryParse(value, out int result) && result >= 0 && result <= 24) FocusHours = result;
+    }
     partial void OnBreakMinutesStringChanged(string value)
     {
-        if (int.TryParse(value, out int result))
-        {
-            if (result >= 1 && result <= 1440)
-            {
-                BreakMinutes = result;
-            }
-        }
+        if (int.TryParse(value, out int result) && result >= 0 && result <= 59) BreakMinutes = result;
     }
-
+    partial void OnBreakHoursStringChanged(string value)
+    {
+        if (int.TryParse(value, out int result) && result >= 0 && result <= 24) BreakHours = result;
+    }
     partial void OnGoalHoursStringChanged(string value)
     {
-        if (int.TryParse(value, out int result))
-        {
-            if (result >= 1 && result <= 24)
-            {
-                GoalHours = result;
-            }
-        }
+        if (int.TryParse(value, out int result) && result >= 0 && result <= 24) GoalHours = result;
+    }
+    partial void OnGoalMinutesStringChanged(string value)
+    {
+        if (int.TryParse(value, out int result) && result >= 0 && result <= 59) GoalMinutes = result;
     }
     
     partial void OnBlockedAppsStringChanged(string value) => SaveSettings();
@@ -269,9 +286,12 @@ public partial class MainViewModel : ViewModelBase
 
     public class AppSettings
     {
-        public int CustomMinutes { get; set; } = 25;
+        public int CustomMinutes { get; set; } = 45;
+        public int FocusHours { get; set; } = 0;
         public int BreakMinutes { get; set; } = 5;
-        public int GoalHours { get; set; } = 5;
+        public int BreakHours { get; set; } = 0;
+        public int GoalHours { get; set; } = 1;
+        public int GoalMinutes { get; set; } = 0;
         public string BlockedApps { get; set; } = "";
         public string AllowedTab { get; set; } = "";
         public bool IsIronWill { get; set; } = false;
@@ -330,8 +350,11 @@ public partial class MainViewModel : ViewModelBase
                 if (s != null)
                 {
                     CustomMinutes = s.CustomMinutes;
+                    if (s.FocusHours > 0) FocusHours = s.FocusHours;
                     if (s.BreakMinutes > 0) BreakMinutes = s.BreakMinutes;
+                    if (s.BreakHours > 0) BreakHours = s.BreakHours;
                     if (s.GoalHours > 0) GoalHours = s.GoalHours;
+                    if (s.GoalMinutes > 0) GoalMinutes = s.GoalMinutes;
                     BlockedAppsString = s.BlockedApps ?? "";
                     AllowedTabString = s.AllowedTab ?? "";
                     IsIronWillEnabled = s.IsIronWill;
@@ -356,8 +379,11 @@ public partial class MainViewModel : ViewModelBase
             var s = new AppSettings
             {
                 CustomMinutes = this.CustomMinutes,
+                FocusHours = this.FocusHours,
                 BreakMinutes = this.BreakMinutes,
+                BreakHours = this.BreakHours,
                 GoalHours = this.GoalHours,
+                GoalMinutes = this.GoalMinutes,
                 BlockedApps = this.BlockedAppsString,
                 AllowedTab = this.AllowedTabString,
                 IsIronWill = this.IsIronWillEnabled,
@@ -521,7 +547,8 @@ public partial class MainViewModel : ViewModelBase
         record.SessionCount++;
         _history.LastFocusedDate = today;
         
-        if (record.TotalMinutes >= GoalHours * 60 && !GoalReachedThisSession)
+        int totalGoalMinutes = (GoalHours * 60) + GoalMinutes;
+        if (record.TotalMinutes >= totalGoalMinutes && !GoalReachedThisSession && totalGoalMinutes > 0)
         {
             GoalReachedThisSession = true;
             IsGoalNotificationVisible = true;
@@ -785,9 +812,9 @@ public partial class MainViewModel : ViewModelBase
         IsRunning = false;
         IsBreakMode = false;
         
-        _sessionRemainingSeconds = GoalHours * 3600;
-        _timeUntilBreakSeconds = CustomMinutes * 60;
-        _breakRemainingSeconds = BreakMinutes * 60;
+        _sessionRemainingSeconds = (GoalHours * 3600) + (GoalMinutes * 60);
+        _timeUntilBreakSeconds = (FocusHours * 3600) + (CustomMinutes * 60);
+        _breakRemainingSeconds = (BreakHours * 3600) + (BreakMinutes * 60);
         
         UpdateTimeDisplay();
         UpdateThemeBrush();
@@ -821,40 +848,34 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void IncrementMinutes()
-    {
-        if (CustomMinutes < 1440) CustomMinutes++;
-    }
+    private void IncrementMinutes() { if (CustomMinutes < 59) CustomMinutes++; }
+    [RelayCommand]
+    private void DecrementMinutes() { if (CustomMinutes > 0) CustomMinutes--; }
 
     [RelayCommand]
-    private void DecrementMinutes()
-    {
-        if (CustomMinutes > 1) CustomMinutes--;
-    }
+    private void IncrementFocusHours() { if (FocusHours < 24) FocusHours++; }
+    [RelayCommand]
+    private void DecrementFocusHours() { if (FocusHours > 0) FocusHours--; }
 
     [RelayCommand]
-    private void IncrementBreakMinutes()
-    {
-        if (BreakMinutes < 60) BreakMinutes++;
-    }
+    private void IncrementBreakMinutes() { if (BreakMinutes < 59) BreakMinutes++; }
+    [RelayCommand]
+    private void DecrementBreakMinutes() { if (BreakMinutes > 0) BreakMinutes--; }
 
     [RelayCommand]
-    private void DecrementBreakMinutes()
-    {
-        if (BreakMinutes > 1) BreakMinutes--;
-    }
+    private void IncrementBreakHours() { if (BreakHours < 24) BreakHours++; }
+    [RelayCommand]
+    private void DecrementBreakHours() { if (BreakHours > 0) BreakHours--; }
 
     [RelayCommand]
-    private void IncrementGoalHours()
-    {
-        if (GoalHours < 24) GoalHours++;
-    }
+    private void IncrementGoalHours() { if (GoalHours < 24) GoalHours++; }
+    [RelayCommand]
+    private void DecrementGoalHours() { if (GoalHours > 0) GoalHours--; }
 
     [RelayCommand]
-    private void DecrementGoalHours()
-    {
-        if (GoalHours > 1) GoalHours--;
-    }
+    private void IncrementGoalMinutes() { if (GoalMinutes < 59) GoalMinutes++; }
+    [RelayCommand]
+    private void DecrementGoalMinutes() { if (GoalMinutes > 0) GoalMinutes--; }
 
     [RelayCommand]
     private void DismissGoalNotification()
