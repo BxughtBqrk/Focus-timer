@@ -95,6 +95,12 @@ public partial class MainViewModel : ViewModelBase
     private int _currentStreak = 0;
 
     [ObservableProperty]
+    private string _todaySessionsDisplay = "0";
+
+    [ObservableProperty]
+    private string _allTimeFocusDisplay = "0h 0m";
+
+    [ObservableProperty]
     private List<Point> _focusChartPoints = new List<Point> { new Point(0, 80), new Point(240, 80) };
 
     [ObservableProperty]
@@ -471,6 +477,13 @@ public partial class MainViewModel : ViewModelBase
         }
             
         CurrentStreak = _history.CurrentStreak;
+        TodaySessionsDisplay = todayRecord != null ? todayRecord.SessionCount.ToString() : "0";
+
+        int allTimeTotal = _history.Records.Sum(r => r.TotalMinutes);
+        int allTimeHours = allTimeTotal / 60;
+        int allTimeMins = allTimeTotal % 60;
+        AllTimeFocusDisplay = allTimeHours > 0 ? $"{allTimeHours}h {allTimeMins}m" : $"{allTimeMins}m";
+
         UpdateChartData();
     }
 

@@ -398,7 +398,7 @@
 
                         <!-- 2x2 Metrics Grid -->
                         <Border Background="#111111" CornerRadius="15" Padding="20" Margin="0,15,0,0">
-                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*">
+                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*">
                                 <!-- Focus -->
                                 <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,15">
                                     <TextBlock Text="Focus" Foreground="#888888" FontSize="11" FontWeight="Bold"/>
@@ -411,8 +411,20 @@
                                     <TextBlock Text="{Binding TodayBreakDisplay}" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
                                 </StackPanel>
 
+                                <!-- Sessions Today -->
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,15">
+                                    <TextBlock Text="Sessions" Foreground="#888888" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding TodaySessionsDisplay}" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <!-- All-Time Focus -->
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,15">
+                                    <TextBlock Text="All-Time Focus" Foreground="#888888" FontSize="11" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding AllTimeFocusDisplay}" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
+                                </StackPanel>
+
                                 <!-- Streak -->
-                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
+                                <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,10,0">
                                     <TextBlock Text="Streak" Foreground="#888888" FontSize="11" FontWeight="Bold"/>
                                     <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,2,0,0">
                                         <TextBlock Text="{Binding CurrentStreak}" Foreground="White" FontSize="20" FontWeight="Bold"/>
@@ -421,7 +433,7 @@
                                 </StackPanel>
 
                                 <!-- Break Ratio -->
-                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,0">
+                                <StackPanel Grid.Row="2" Grid.Column="1" Margin="10,0,0,0">
                                     <TextBlock Text="Break Ratio" Foreground="#888888" FontSize="11" FontWeight="Bold"/>
                                     <TextBlock Text="{Binding BreakRatioDisplay}" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,2,0,0"/>
                                 </StackPanel>
