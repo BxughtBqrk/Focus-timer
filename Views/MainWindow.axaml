@@ -82,8 +82,7 @@
                         Background="Transparent"
                         Foreground="#888888"
                         BorderThickness="0"
-                        FontSize="16"
-                        IsEnabled="{Binding ShowControls}"/>
+                        FontSize="16"/>
 
                 <TextBlock Text="FOCUS TIMER" 
                            VerticalAlignment="Center"
@@ -444,7 +443,7 @@
             <!-- Controls -->
             <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Spacing="5" Margin="0,0,10,0" IsVisible="{Binding IsNotGhostMode}">
                 <Button Content="▶" Command="{Binding StartTimerCommand}" IsVisible="{Binding !IsRunning}" Background="Transparent" Foreground="#00E5FF" BorderThickness="0" Padding="5"/>
-                <Button Content="⏸" Command="{Binding StopTimerCommand}" IsVisible="{Binding IsRunning}" Background="Transparent" Foreground="#FF3366" BorderThickness="0" Padding="5"/>
+                <Button Content="⏸" Command="{Binding StopTimerCommand}" IsVisible="{Binding ShowPauseButton}" Background="Transparent" Foreground="#FF3366" BorderThickness="0" Padding="5"/>
             </StackPanel>
         </Grid>
 
